@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9b11a15-1cdc-413c-b170-1eaf865e139a" name="更改" comment="" />
+    <list default="true" id="d9b11a15-1cdc-413c-b170-1eaf865e139a" name="更改" comment="">
+      <change afterPath="$PROJECT_DIR$/../practiceProject/grom/main.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../practiceProject/webook/internel/main.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../practiceProject/webook/internel/web/user.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../practiceProject/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/../practiceProject/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/testHandlerOfRouter/handlerOfRouter.go" beforeDir="false" afterPath="$PROJECT_DIR$/testHandlerOfRouter/handlerOfRouter.go" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -18,9 +24,12 @@
     </option>
   </component>
   <component name="GOROOT" url="file:///usr/local/go" />
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 7
-}]]></component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
   <component name="ProjectId" id="2m7Qo3y0keFf8Cie6nOUSAjZcWJ" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -34,8 +43,9 @@
     "RunOnceActivity.go.formatter.settings.were.checked": "true",
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "git-widget-placeholder": "main",
     "go.import.settings.migrated": "true",
-    "last_opened_file_path": "/Users/albert",
+    "last_opened_file_path": "/Users/albert/GolandProjects/study/week2",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
