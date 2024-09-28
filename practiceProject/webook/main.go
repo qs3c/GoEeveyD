@@ -16,7 +16,8 @@ func main() {
 	u := &web.UserHandler{}
 
 	// 预编译正则表达式子
-	u.PreCompile()
+	//u.PreCompile()
+	//web.NewUserHandler()
 	// 注册路由
 	u.RegisterRouters(server)
 
