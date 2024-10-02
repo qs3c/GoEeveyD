@@ -122,11 +122,38 @@ func (u *UserHandler) Signup(c *gin.Context) {
 		c.String(http.StatusOK, "注册服务异常")
 		return
 	}
+	// errors.Is(err, service.ErrDuplicateEmail)
+	if err == service.ErrDuplicateEmail {
+		c.String(http.StatusOK, "邮箱已被注册")
+		return
+	}
 	c.String(http.StatusOK, "signup success")
 	//fmt.Printf("%v", req)
 
 }
-func (u *UserHandler) Login(c *gin.Context)   {}
+func (u *UserHandler) Login(c *gin.Context) {
+	type LoginReq struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	var req LoginReq
+	if err := c.Bind(&req); err != nil {
+		return
+	}
+
+	err := u.svc.Login(c, req.Email, req.Password)
+	if err == service.ErrInvalidUserOrPassword {
+		c.String(http.StatusOK, "账号/密码错误")
+		return
+	}
+	if err != nil {
+		c.String(http.StatusOK, "系统错误")
+		return
+	}
+	c.String(http.StatusOK, "登陆成功")
+	return
+
+}
 func (u *UserHandler) Edit(c *gin.Context)    {}
 func (u *UserHandler) Profile(c *gin.Context) {}
 

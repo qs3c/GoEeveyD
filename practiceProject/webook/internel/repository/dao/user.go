@@ -2,8 +2,16 @@ package dao
 
 import (
 	"context"
+	"errors"
+	"github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
 	"time"
+)
+
+var (
+	ErrDuplicateEmail = errors.New("邮箱冲突！")
+	// 直接用 gorm 中的 ErrRecordNotFound，也可以 errors.New 自己定义一个
+	ErrUserNotFound = gorm.ErrRecordNotFound
 )
 
 type UserDAO struct {
@@ -23,8 +31,22 @@ func (dao *UserDAO) Insert(ctx context.Context, u User) error {
 	u.Ctime = now
 	u.Utime = now
 	// 一个 gorm 的 Create 操作
-	return dao.db.WithContext(ctx).Create(&u).Error
+	err := dao.db.WithContext(ctx).Create(&u).Error
+	if mysqlErr, ok := err.(*mysql.MySQLError); ok {
+		// 1062 是唯一索引冲突错误
+		if mysqlErr.Number == 1062 {
+			return ErrDuplicateEmail
+		}
+	}
 
+	return err
+
+}
+
+func (dao *UserDAO) FindByEmail(ctx context.Context, email string) (User, error) {
+	var u User
+	err := dao.db.WithContext(ctx).Where("email=?", email).First(&u).Error
+	return u, err
 }
 
 // 对标到数据库的 User 结构体（和 domain 中的有什么区别？domain 中的是业务 User）
