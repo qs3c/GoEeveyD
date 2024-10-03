@@ -2,6 +2,8 @@ package main
 
 import (
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -9,6 +11,7 @@ import (
 	"practiceProject/webook/internel/repository/dao"
 	"practiceProject/webook/internel/service"
 	"practiceProject/webook/internel/web"
+	"practiceProject/webook/internel/web/middleware"
 	"strings"
 	"time"
 )
@@ -30,6 +33,7 @@ func main() {
 func initWebServer() *gin.Engine {
 	server := gin.Default()
 	//u := &web.UserHandler{}
+	// 跨域中间件
 	server.Use(cors.New(cors.Config{
 		AllowHeaders:     []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
@@ -41,6 +45,18 @@ func initWebServer() *gin.Engine {
 		},
 		MaxAge: 12 * time.Hour,
 	}))
+
+	// session cookie 中间件
+	// 创建一个叫 secret 的 cookie 用来存 session 信息
+	// 创建了一个叫 myseesion 用作于 seesion 的 cookie
+	// 后续 cookie 的 key 值是  mysession
+	store := cookie.NewStore([]byte("secret"))
+	server.Use(sessions.Sessions("mysession", store))
+
+	// 登录状态预验证（已登录情况，看看 session 有没有已经 set 过
+	server.Use(middleware.NewLoginMiddlewareBuilder().Build())
+	// 注册路由
+	//u.RegisterRouters(server)
 	return server
 }
 

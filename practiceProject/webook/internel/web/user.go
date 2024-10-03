@@ -2,6 +2,7 @@ package web
 
 import (
 	regexp "github.com/dlclark/regexp2"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"practiceProject/webook/internel/domain"
@@ -141,7 +142,7 @@ func (u *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	err := u.svc.Login(c, req.Email, req.Password)
+	user, err := u.svc.Login(c, req.Email, req.Password)
 	if err == service.ErrInvalidUserOrPassword {
 		c.String(http.StatusOK, "账号/密码错误")
 		return
@@ -150,6 +151,12 @@ func (u *UserHandler) Login(c *gin.Context) {
 		c.String(http.StatusOK, "系统错误")
 		return
 	}
+
+	// 登录成功后把 seesion 设置一下
+	sess := sessions.Default(c)
+	sess.Set("user_id", user.Id)
+	_ = sess.Save()
+
 	c.String(http.StatusOK, "登陆成功")
 	return
 
