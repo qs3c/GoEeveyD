@@ -1,9 +1,11 @@
 package middleware
 
 import (
+	"encoding/gob"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"time"
 )
 
 type LoginMiddlewareBuilder struct {
@@ -22,7 +24,7 @@ func (l *LoginMiddlewareBuilder) IgnorePaths(path string) *LoginMiddlewareBuilde
 }
 
 func (l *LoginMiddlewareBuilder) Build() gin.HandlerFunc {
-
+	gob.Register(time.Now())
 	return func(ctx *gin.Context) {
 
 		for _, path := range l.paths {
@@ -43,6 +45,32 @@ func (l *LoginMiddlewareBuilder) Build() gin.HandlerFunc {
 		if id == nil {
 			// 没有登录
 			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		updateTime := sess.Get("update_time")
+		// 多次 set option 一次 save 生效
+		sess.Set("user_id", id)
+		sess.Options(sessions.Options{
+			MaxAge: 60,
+		})
+		now := time.Now().UnixMilli()
+		if updateTime == nil {
+			// 说明是第一次登陆，还没有刷新时间
+			// 那么就设置刷新时间
+			sess.Set("update_time", now)
+			_ = sess.Save()
+			return
+		}
+
+		// 如果有 updateTime
+		// 这里通过 Get 方法取出来的 updateTime 是一个 interface
+		// 需要断言一下才能用
+		updateTimeVal, _ := updateTime.(int64)
+
+		if now-updateTimeVal > 60*1000 {
+			sess.Set("update_time", now)
+			_ = sess.Save()
 			return
 		}
 	}

@@ -4,6 +4,7 @@ import (
 	regexp "github.com/dlclark/regexp2"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	jwt "github.com/golang-jwt/jwt/v5"
 	"net/http"
 	"practiceProject/webook/internel/domain"
 	"practiceProject/webook/internel/service"
@@ -155,11 +156,56 @@ func (u *UserHandler) Login(c *gin.Context) {
 	// 登录成功后把 seesion 设置一下
 	sess := sessions.Default(c)
 	sess.Set("user_id", user.Id)
+	// 设置参数，都是针对 cookie 的，session 不管怎么样都会用到 cookie，即 session id
+	sess.Options(
+		sessions.Options{
+			// 给哪些请求返回 cookie
+			Path: "/",
+			// 设置 MaxAge 为 -1 即退出登陆
+			MaxAge: 3600,
+			// 生产环境再开启：
+			//HttpOnly: true,
+			//Secure:   true,
+		})
 	_ = sess.Save()
 
 	c.String(http.StatusOK, "登陆成功")
 	return
+}
 
+func (u *UserHandler) LoginJWT(c *gin.Context) {
+	type LoginReq struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	var req LoginReq
+	if err := c.Bind(&req); err != nil {
+		return
+	}
+
+	user, err := u.svc.Login(c, req.Email, req.Password)
+	if err == service.ErrInvalidUserOrPassword {
+		c.String(http.StatusOK, "账号/密码错误")
+		return
+	}
+	if err != nil {
+		c.String(http.StatusOK, "系统错误")
+		return
+	}
+
+	// 将这里的 session 设置改为 JWT 设置
+	// 这里指定签名方法实例后，会返回一个 token 结构体的实例
+	// 调用方法获取签名结果
+	token := jwt.New(jwt.SigningMethodHS256)
+	tokenStr, err := token.SignedString([]byte("H823kgHYwvHm9BltzLty2ZFU0vxBPVpg"))
+	if err != nil {
+		c.String(http.StatusInternalServerError, "系统错误")
+	}
+	// 放到 header 中返回给前端
+	c.Header("x-jwt-token", tokenStr)
+
+	c.String(http.StatusOK, "登陆成功")
+	return
 }
 func (u *UserHandler) Edit(c *gin.Context)    {}
 func (u *UserHandler) Profile(c *gin.Context) {}
@@ -168,7 +214,8 @@ func (u *UserHandler) Profile(c *gin.Context) {}
 
 func (u *UserHandler) RegisterRouters(server *gin.Engine) {
 	server.POST("/users/signup", u.Signup)
-	server.POST("/users/login", u.Login)
+	//server.POST("/users/login", u.Login)
+	server.POST("/users/login", u.LoginJWT)
 	server.POST("/users/edit", u.Edit)
 	server.GET("/users/profile", u.Profile)
 

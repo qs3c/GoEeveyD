@@ -14,9 +14,11 @@ services:
     ports:
       - "13316:3306"
 
-#  redis:
-#    image: 'bitnami/redis:latest'
-#    environment:
-#      - ALLOW_EMPTY_PASSWORD = yes
-#    ports:
-#      - '6379:6379'
+  redis:
+    image: 'bitnami/redis:latest'
+    environment:
+#      我靠，这里注意- ALLOW_EMPTY_PASSWORD=yes 的=两边是不能有空格的
+#      格式很重要
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - '6379:6379'
